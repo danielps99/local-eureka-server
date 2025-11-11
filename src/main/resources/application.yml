@@ -8,7 +8,25 @@ spring:
 eureka:
   instance:
     hostname: localhost
+    prefer-ip-address: true
+  server:
+    enable-self-preservation: false
+    eviction-interval-timer-in-ms: 5000
   client:
     register-with-eureka: false
     fetch-registry: false
+    service-url:
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+  # Configuration for external services registration
+  external-services:
+    # Path to JSON file containing external services to register
+    # Can be classpath: (for resources) or file: (for absolute path)
+    config-file: classpath:external-services.json
+
+logging:
+  level:
+    com.netflix.eureka: INFO
+    com.netflix.discovery: INFO
+    org.springframework.cloud: INFO
+    com.eureka: INFO
 

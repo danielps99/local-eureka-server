@@ -1,0 +1,12 @@
+{
+  "services": [
+    {
+      "serviceName": "hub-user-data",
+      "externalUrl": "https://api-dev.bdws.com.br/hub-user-data",
+      "port": 443,
+      "secure": true,
+      "instanceId": null
+    }
+  ]
+}
+
