@@ -3,7 +3,8 @@ package com.eureka.service;
 import com.eureka.dto.ExternalServiceConfig;
 import com.eureka.dto.ExternalServicesConfiguration;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.io.Resource;
@@ -17,9 +18,10 @@ import java.util.List;
  * Service that reads external services configuration from JSON file
  * and registers them with Eureka on application startup
  */
-@Slf4j
 @Service
 public class FileBasedServiceRegistrationService implements CommandLineRunner {
+    
+    private static final Logger log = LoggerFactory.getLogger(FileBasedServiceRegistrationService.class);
 
     private final ResourceLoader resourceLoader;
     private final ServiceRegistrationService registrationService;
@@ -54,29 +56,29 @@ public class FileBasedServiceRegistrationService implements CommandLineRunner {
                 config = objectMapper.readValue(inputStream, ExternalServicesConfiguration.class);
             }
             
-            if (config == null || config.getServices() == null || config.getServices().isEmpty()) {
+            if (config == null || config.services() == null || config.services().isEmpty()) {
                 log.info("No external services configured in {}", configFileLocation);
                 return;
             }
             
-            log.info("Found {} external service(s) to register", config.getServices().size());
+            log.info("Found {} external service(s) to register", config.services().size());
             
             // Wait a bit for Eureka server to be fully initialized
             Thread.sleep(2000);
             
-            List<ExternalServiceConfig> services = config.getServices();
+            List<ExternalServiceConfig> services = config.services();
             int successCount = 0;
             int failureCount = 0;
             
             for (ExternalServiceConfig serviceConfig : services) {
-                if (serviceConfig.getServiceName() == null || serviceConfig.getServiceName().trim().isEmpty()) {
+                if (serviceConfig.serviceName() == null || serviceConfig.serviceName().trim().isEmpty()) {
                     log.warn("Skipping service with empty service name");
                     failureCount++;
                     continue;
                 }
                 
-                if (serviceConfig.getExternalUrl() == null || serviceConfig.getExternalUrl().trim().isEmpty()) {
-                    log.warn("Skipping service {} with empty external URL", serviceConfig.getServiceName());
+                if (serviceConfig.externalUrl() == null || serviceConfig.externalUrl().trim().isEmpty()) {
+                    log.warn("Skipping service {} with empty external URL", serviceConfig.serviceName());
                     failureCount++;
                     continue;
                 }

@@ -1,7 +1,8 @@
 package com.eureka.service;
 
 import com.eureka.dto.ExternalServiceConfig;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -15,9 +16,10 @@ import java.time.Duration;
 /**
  * Service to register external services with Eureka
  */
-@Slf4j
 @Service
 public class ServiceRegistrationService {
+    
+    private static final Logger log = LoggerFactory.getLogger(ServiceRegistrationService.class);
 
     private final HttpClient httpClient;
     
@@ -38,35 +40,35 @@ public class ServiceRegistrationService {
      */
     public boolean registerService(ExternalServiceConfig config) {
         try {
-            URI externalUri = URI.create(config.getExternalUrl());
+            URI externalUri = URI.create(config.externalUrl());
             String host = externalUri.getHost();
             String path = externalUri.getPath();
             // Remove trailing slash from path
             if (path != null && path.endsWith("/") && path.length() > 1) {
                 path = path.substring(0, path.length() - 1);
             }
-            int port = config.getPort() != null ? config.getPort() : 
+            int port = config.port() != null ? config.port() : 
                        (externalUri.getScheme().equals("https") ? 443 : 80);
-            boolean secure = config.getSecure() != null ? config.getSecure() : 
+            boolean secure = config.secure() != null ? config.secure() : 
                            externalUri.getScheme().equals("https");
             
-            String serviceName = config.getServiceName().toUpperCase();
-            String instanceId = config.getInstanceId() != null ? 
-                               config.getInstanceId() : 
-                               host + ":" + config.getServiceName() + ":" + port;
+            String serviceName = config.serviceName().toUpperCase();
+            String instanceId = config.instanceId() != null ? 
+                               config.instanceId() : 
+                               host + ":" + config.serviceName() + ":" + port;
             
             long timestamp = System.currentTimeMillis();
             
             // Build Eureka registration JSON
             String jsonPayload = buildEurekaRegistrationJson(
                     serviceName, instanceId, host, port, secure, 
-                    config.getExternalUrl(), path, timestamp
+                    config.externalUrl(), path, timestamp
             );
             
             String eurekaEndpoint = eurekaUrl.replace("/eureka/", "") + "/eureka/apps/" + serviceName;
             
             log.info("Registering service {} -> {} with Eureka at {}", 
-                    serviceName, config.getExternalUrl(), eurekaEndpoint);
+                    serviceName, config.externalUrl(), eurekaEndpoint);
             
             HttpRequest httpRequest = HttpRequest.newBuilder()
                     .uri(URI.create(eurekaEndpoint))

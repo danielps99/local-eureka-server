@@ -1,41 +1,40 @@
 package com.eureka.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonCreator;
 
 /**
  * DTO representing a single external service configuration
  */
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class ExternalServiceConfig {
-    
+public record ExternalServiceConfig(
     /**
      * Service name (e.g., "hub-user-data")
      */
-    private String serviceName;
+    String serviceName,
     
     /**
      * External URL (e.g., "https://api-dev.bdws.com.br/hub-user-data")
      */
-    private String externalUrl;
+    String externalUrl,
     
     /**
      * Port number (optional, will be auto-detected from URL if not provided)
      */
-    private Integer port;
+    Integer port,
     
     /**
      * Whether the connection is secure (HTTPS)
      * Optional, will be auto-detected from URL scheme if not provided
      */
-    private Boolean secure;
+    Boolean secure,
     
     /**
      * Instance ID (optional, will be auto-generated if not provided)
      */
-    private String instanceId;
+    String instanceId
+) {
+    @JsonCreator
+    public ExternalServiceConfig {
+        // Compact constructor for validation if needed
+    }
 }
 
