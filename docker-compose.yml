@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  eureka-server:
+    build: .
+    container_name: eurekaserver
+    ports:
+      - "8761:8761"
+    volumes:
+      # Mount your custom external-services.json file
+      # Edit this file on your host to change services without rebuilding
+      - ./config/external-services.json:/app/config/external-services.json:ro
+    environment:
+      # Point to the mounted config file
+      - EUREKA_EXTERNAL_SERVICES_CONFIG_FILE=file:/app/config/external-services.json
+    restart: unless-stopped

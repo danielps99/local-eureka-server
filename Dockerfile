@@ -13,6 +13,9 @@ WORKDIR /app
 
 COPY --from=builder /app/target/*.jar app.jar
 
+# Create config directory for external configuration files
+RUN mkdir -p /app/config
+
 EXPOSE 8761
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
